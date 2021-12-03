@@ -1,0 +1,24 @@
+{% extends 'vase.html' %}
+{% block title %}Delete Blog Post{% endblock %}
+{% block content %}
+
+{% if user.is_authenticated %}
+	{% if user.id == post.author.id %}
+		<h1>Delete Post...</h1>
+		<br/><br/>
+		<h3>Delete: {{ post.title }}</h3>
+		<br/>
+		<div class="form-group">
+		<form method="POST">
+			{% csrf_token %}	
+			<strong>Are you sure?!</strong><br/><br/>
+			<button class="btn btn-primary">Delete post</button>
+		</div>
+		{% else %}
+		You are not allowed!
+	{% endif %}
+{% else %}
+	You are not allowed. Please login to add a post.
+{% endif %}
+
+{% endblock %}

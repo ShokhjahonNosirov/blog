@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static %}
+<!DOCTYPE html>
+
+{% block content %}
+        <!-- Page Header-->
+        <header class="masthead" style="background-image: url('{% static "assets/img/post-bg.jpg" %}');">
+            <div class="container position-relative px-4 px-lg-5">
+                <div class="row gx-4 gx-lg-5 justify-content-center">
+                    <div class="col-md-10 col-lg-8 col-xl-7">
+                        <div class="post-heading">
+                            <h1>{{ post.title }}</h1>
+                            <h2 class="subheading">{{ post.author.id }}</h2>
+                            <span class="meta">
+                                Posted by
+                                <a href="#!">{{ post.author.first_name }} {{ post.author.last_name }} - {{ post.post_date }}</a>
+                                {% if user.is_authenticated %}
+	                                {% if user.id == post.author.id %}
+		                                <a href = "{% url 'update_post' post.pk %}">(Edit)</a>
+		                                <a href = "{% url 'delete_post' post.pk %}">(Delete)</a>
+	                                {% endif %}
+	                            </small><br/>
+	                            <hr>
+	                            <br/>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- Post Content-->
+        <article class="mb-4">
+            <div class="container px-4 px-lg-5">
+                <div class="row gx-4 gx-lg-5 justify-content-left">
+                    <div class="col-md-10 col-lg-8 col-xl-7">
+                        {% if post.header_image %}
+	                        <img src="{{ post.header_image.url }}" width="200" height="121">
+                        {% endif %}
+                        
+                    <br/><br/>
+                    </div>
+                </div>
+            </div>
+        </article>
+        {{ post.body|safe }} 
+        <br/><br/>
+
+
+        <form action="{% url 'like_post' post.pk %}" method="POST">
+            {% csrf_token %}
+        {% if user.is_authenticated %}
+            {% if liked %}
+                <button type="submit", name="post_id", value
+                ="{{ post.id }}", class="btn btn-danger btn-sm">Unlike</button> 
+            {% else %}
+                <button type="submit", name="post_id", value
+                ="{{ post.id }}", class="btn btn-block btn-primary"><i class="fa fa-thumbs-up"></i>Like</button>
+            {% endif %}
+        {% else %}
+            <small><a class="nav-link" href="{% url 'login' %}">Login</a>to like</small>
+            {% endif %}
+            - {{ total_likes}} Likes
+        </form>
+        <br/><br/><br/>
+        <a href="{% url 'home' %}" class="btn btn-secondary">Back</a>
+        
+        <br/><br/><hr><br/><br/>
+        {% if post.author.profile %}
+                <div class="card mb-3">
+                <div class="row g-0">
+                    <div class="col-md-2">
+                {% if post.author.profile.profile_pic %}	
+                    <img src="{{ post.author.profile.profile_pic.url }}" class = "card-img" >
+                {% else %}
+                    <img src="{% static 'images/default-profile-picture-png-2.png' %}" class = "card-img" >
+                {% endif %}	  
+                    </div>
+                    <div class="col-md-10">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                        {{ post.author.first_name }} 
+                        {{ post.author.last_name }}
+                        </h5>
+                    
+                    <p class = "small text-muted">
+                        <a href="{% url 'show_profile_page' post.author.profile.id %}">Profile Page</a> 
+                        {% if post.author.profile.telegram_url %}
+                            | <a href="{{ post.author.profile.telegram_url}}"> Telegram </a> |
+                        {% endif %}
+                    </p>
+                        <p class="card-text"> 
+                        {{ post.author.profile.bio }}
+        {% else %}
+            {% if user.id == post.author.id %}              
+                You can create you profile page <a href="{% url 'create_profile_page' %}">here</a>
+            {% endif %}
+        {% endif %}
+                </p>   
+              </div>
+            </div>
+          </div>
+        </div>
+        <br/><br/>
+        <h2>Comments...</h2>
+        <br/>
+        {% if not post.comments.all %}
+            No Comments Yet...<a href="{% url 'add_comment' post.pk %}">Add One</a>
+        {% else %}
+        <a href="% url 'add_comment' post.pk %">Add Comment</a>
+        <br/><br/>
+        
+            {% for comment in post.comments.all %}
+                <strong>{{ comment.name }}-{{ comment.date_added }}</strong><br/>{{ comment.body }}
+            {% endfor %}
+        {% endif %}	
+        <br/><br/><br/><br/>
+        
+{% endblock %}       
